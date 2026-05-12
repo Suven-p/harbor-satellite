@@ -18,11 +18,6 @@
   "paths": {
     "/api/logout": {
       "post": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
         "description": "Requires a bearer token for session invalidation.",
         "tags": [
           "auth"
@@ -45,19 +40,16 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
     "/api/users": {
       "get": {
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "BasicAuth": []
-          }
-        ],
         "description": "Bearer auth is recommended. Basic auth remains supported.",
         "tags": [
           "users"
@@ -83,9 +75,7 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
-      },
-      "post": {
+        },
         "security": [
           {
             "BearerAuth": []
@@ -93,7 +83,9 @@
           {
             "BasicAuth": []
           }
-        ],
+        ]
+      },
+      "post": {
         "description": "Requires a system admin user. Bearer auth is recommended.",
         "tags": [
           "users"
@@ -147,11 +139,7 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
-      }
-    },
-    "/api/users/password": {
-      "patch": {
+        },
         "security": [
           {
             "BearerAuth": []
@@ -159,7 +147,11 @@
           {
             "BasicAuth": []
           }
-        ],
+        ]
+      }
+    },
+    "/api/users/password": {
+      "patch": {
         "description": "Bearer auth is recommended. Basic auth remains supported.",
         "tags": [
           "users"
@@ -198,11 +190,7 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
-      }
-    },
-    "/api/users/{username}": {
-      "get": {
+        },
         "security": [
           {
             "BearerAuth": []
@@ -210,7 +198,11 @@
           {
             "BasicAuth": []
           }
-        ],
+        ]
+      }
+    },
+    "/api/users/{username}": {
+      "get": {
         "description": "Bearer auth is recommended. Basic auth remains supported.",
         "tags": [
           "users"
@@ -242,9 +234,7 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
-      },
-      "delete": {
+        },
         "security": [
           {
             "BearerAuth": []
@@ -252,7 +242,9 @@
           {
             "BasicAuth": []
           }
-        ],
+        ]
+      },
+      "delete": {
         "description": "Requires a system admin user. Bearer auth is recommended.",
         "tags": [
           "users"
@@ -293,7 +285,15 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "BasicAuth": []
+          }
+        ]
       },
       "parameters": [
         {
@@ -306,14 +306,6 @@
     },
     "/api/users/{username}/password": {
       "patch": {
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "BasicAuth": []
-          }
-        ],
         "description": "Requires a system admin user. Bearer auth is recommended.",
         "tags": [
           "users"
@@ -364,7 +356,15 @@
               "$ref": "#/definitions/ErrorResponse"
             }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "BasicAuth": []
+          }
+        ]
       },
       "parameters": [
         {
