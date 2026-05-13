@@ -22,6 +22,22 @@ tasks:
       - "{{.BIN_DIR}}/satellite"
     silent: true
 
+  gcctl:
+    desc: Build ground-control CLI binary for current platform
+    dir: "{{.ROOT_DIR}}/ground-control/gcctl"
+    cmds:
+      - echo "Building gcctl for {{.GOOS}}/{{.GOARCH}}..."
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/gcctl ./main.go
+      - echo "Built bin/gcctl"
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BIN_DIR}}/gcctl"
+    silent: true
+
   ground-control:
     desc: Build ground-control binary for current platform
     dir: "{{.ROOT_DIR}}/ground-control"

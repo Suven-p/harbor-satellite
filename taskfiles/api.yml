@@ -5,6 +5,7 @@ vars:
   API_SPEC: "{{.GC_DIR}}/api/v1/swagger.yaml"
   API_JSON: "{{.GC_DIR}}/api/v1/swagger.json"
   API_GEN_DIR: "{{.GC_DIR}}/internal/api/generated"
+  API_GEN_CLIENT_DIR: "{{.GC_DIR}}/gcctl/apiclient/generated"
 
 tasks:
   swagger-validate:
@@ -46,9 +47,24 @@ tasks:
       - mkdir -p "{{.API_GEN_DIR}}"
       - swagger generate server -f "{{.API_SPEC}}" -A groundcontrol --exclude-main --target "{{.API_GEN_DIR}}"
 
+  gen-gcctl-client:
+    desc: Generate the gcctl Go client from the Ground Control swagger spec
+    dir: "{{.ROOT_DIR}}"
+    deps: [swagger-validate, swagger-json]
+    preconditions:
+      - sh: command -v swagger >/dev/null 2>&1
+        msg: "swagger CLI is required"
+    sources:
+      - "{{.API_SPEC}}"
+    generates:
+      - "{{.API_GEN_CLIENT_DIR}}/client/groundcontrol_client.go"
+    cmds:
+      - mkdir -p "{{.API_GEN_CLIENT_DIR}}"
+      - swagger generate client -f "{{.API_SPEC}}" -A groundcontrol --target "{{.API_GEN_CLIENT_DIR}}"
+
   gen-apis-check:
     desc: Verify generated Ground Control API files are up to date
     dir: "{{.ROOT_DIR}}"
-    deps: [gen-apis]
+    deps: [gen-apis, gen-gcctl-client]
     cmds:
-      - git diff --exit-code -- "{{.GC_DIR}}/api/v1" "{{.API_GEN_DIR}}"
+      - git diff --exit-code -- "{{.GC_DIR}}/api/v1" "{{.API_GEN_DIR}}" "{{.API_GEN_CLIENT_DIR}}"
