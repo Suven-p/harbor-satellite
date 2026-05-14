@@ -12,6 +12,7 @@ import (
 
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations"
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/auth"
+	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/groups"
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/system"
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/users"
 )
@@ -140,6 +141,14 @@ func configureAPI(api *operations.GroundcontrolAPI) http.Handler {
 			_ = params
 
 			return middleware.NotImplemented("operation system.Ping has not yet been implemented")
+		})
+	}
+	if api.GroupsSyncGroupHandler == nil {
+		api.GroupsSyncGroupHandler = groups.SyncGroupHandlerFunc(func(params groups.SyncGroupParams, principal any) middleware.Responder {
+			_ = params
+			_ = principal
+
+			return middleware.NotImplemented("operation groups.SyncGroup has not yet been implemented")
 		})
 	}
 

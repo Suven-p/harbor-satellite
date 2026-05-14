@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client/auth"
+	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client/groups"
 	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client/system"
 	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client/users"
 )
@@ -55,6 +56,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Groundcont
 	cli := new(Groundcontrol)
 	cli.Transport = transport
 	cli.Auth = auth.New(transport, formats)
+	cli.Groups = groups.New(transport, formats)
 	cli.System = system.New(transport, formats)
 	cli.Users = users.New(transport, formats)
 	return cli
@@ -103,6 +105,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type Groundcontrol struct {
 	Auth auth.ClientService
 
+	Groups groups.ClientService
+
 	System system.ClientService
 
 	Users users.ClientService
@@ -114,6 +118,7 @@ type Groundcontrol struct {
 func (c *Groundcontrol) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Auth.SetTransport(transport)
+	c.Groups.SetTransport(transport)
 	c.System.SetTransport(transport)
 	c.Users.SetTransport(transport)
 }

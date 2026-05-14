@@ -17,6 +17,7 @@ tags:
   - name: system
   - name: auth
   - name: users
+  - name: groups
 securityDefinitions:
   BearerAuth:
     type: apiKey
@@ -121,6 +122,62 @@ definitions:
     properties:
       error:
         type: string
+  Artifact:
+    type: object
+    properties:
+      repository:
+        type: string
+      tag:
+        type: array
+        items:
+          type: string
+      labels:
+        type: object
+        description: Free-form label metadata; passed through unchanged.
+      type:
+        type: string
+      digest:
+        type: string
+      deleted:
+        type: boolean
+  StateArtifact:
+    type: object
+    properties:
+      group:
+        type: string
+      registry:
+        type: string
+      artifacts:
+        type: array
+        items:
+          $ref: '#/definitions/Artifact'
+  Group:
+    type: object
+    required:
+      - id
+      - group_name
+      - registry_url
+      - projects
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+        format: int32
+      group_name:
+        type: string
+      registry_url:
+        type: string
+      projects:
+        type: array
+        items:
+          type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
 paths:
   /ping:
     get:
@@ -353,6 +410,48 @@ paths:
             $ref: '#/definitions/ErrorResponse'
         '500':
           description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/groups/sync:
+    post:
+      tags:
+        - groups
+      operationId: syncGroup
+      summary: Create or update a group from a state artifact
+      description: >-
+        Creates the group described in the state artifact, updates the projects
+        of all robot accounts attached to its satellites, ensures the
+        "satellite" project exists in Harbor, and writes the state artifact.
+        Requires an authenticated user. Bearer auth is recommended; Basic auth
+        remains supported for automation.
+      security:
+        - BearerAuth: []
+        - BasicAuth: []
+      parameters:
+        - in: body
+          name: state
+          required: true
+          schema:
+            $ref: '#/definitions/StateArtifact'
+      responses:
+        '200':
+          description: Group created and state synced
+          schema:
+            $ref: '#/definitions/Group'
+        '400':
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '502':
+          description: Upstream Harbor error
           schema:
             $ref: '#/definitions/ErrorResponse'
   /api/users/{username}/password:

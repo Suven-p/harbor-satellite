@@ -17,6 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/auth"
+	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/groups"
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/system"
 	"github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/users"
 )
@@ -110,6 +111,13 @@ func NewGroundcontrolAPI(spec *loads.Document) *GroundcontrolAPI {
 			return middleware.NotImplemented("operation system.Ping has not yet been implemented")
 		}),
 
+		GroupsSyncGroupHandler: groups.SyncGroupHandlerFunc(func(params groups.SyncGroupParams, principal any) middleware.Responder {
+			_ = params
+			_ = principal
+
+			return middleware.NotImplemented("operation groups.SyncGroup has not yet been implemented")
+		}),
+
 		// Applies when the Authorization header is set with the Basic scheme
 		BasicAuthAuth: func(user string, password string) (any, error) {
 			_ = user
@@ -192,6 +200,8 @@ type GroundcontrolAPI struct {
 	AuthLogoutHandler auth.LogoutHandler
 	// SystemPingHandler sets the operation handler for the ping operation
 	SystemPingHandler system.PingHandler
+	// GroupsSyncGroupHandler sets the operation handler for the sync group operation
+	GroupsSyncGroupHandler groups.SyncGroupHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -305,6 +315,9 @@ func (o *GroundcontrolAPI) Validate() error {
 	}
 	if o.SystemPingHandler == nil {
 		unregistered = append(unregistered, "system.PingHandler")
+	}
+	if o.GroupsSyncGroupHandler == nil {
+		unregistered = append(unregistered, "groups.SyncGroupHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -449,6 +462,10 @@ func (o *GroundcontrolAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ping"] = system.NewPing(o.context, o.SystemPingHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/groups/sync"] = groups.NewSyncGroup(o.context, o.GroupsSyncGroupHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

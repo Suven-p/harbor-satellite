@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Handle("/api/users/password", generated).Methods("PATCH")
 	r.Handle("/api/users/{username}", generated).Methods("GET", "DELETE")
 	r.Handle("/api/users/{username}/password", generated).Methods("PATCH")
+	r.Handle("/api/groups/sync", generated).Methods("POST")
 
 	// Human API routes (user auth required)
 	api := r.PathPrefix("/api").Subrouter()
@@ -33,7 +34,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Groups
 	api.HandleFunc("/groups", s.listGroupHandler).Methods("GET")
-	api.HandleFunc("/groups/sync", s.groupsSyncHandler).Methods("POST")
 	api.HandleFunc("/groups/{group}", s.getGroupHandler).Methods("GET")
 	api.HandleFunc("/groups/{group}/satellites", s.groupSatelliteHandler).Methods("GET")
 	api.HandleFunc("/groups/satellite", s.addSatelliteToGroup).Methods("POST")

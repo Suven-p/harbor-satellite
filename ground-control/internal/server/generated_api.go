@@ -14,11 +14,14 @@ import (
 
 	apimodels "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/models"
 	apirest "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi"
+	"github.com/container-registry/harbor-satellite/ground-control/internal/database"
 	apiops "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations"
 	apiauth "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/auth"
+	apigroups "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/groups"
 	apisystem "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/system"
 	apiusers "github.com/container-registry/harbor-satellite/ground-control/internal/api/generated/restapi/operations/users"
 	internalmiddleware "github.com/container-registry/harbor-satellite/ground-control/internal/middleware"
+	"github.com/container-registry/harbor-satellite/ground-control/internal/models"
 )
 
 type apiPrincipal struct {
@@ -47,6 +50,7 @@ func (s *Server) newGeneratedAPIHandler() http.Handler {
 	api.UsersDeleteUserHandler = apiusers.DeleteUserHandlerFunc(s.handleGeneratedDeleteUser)
 	api.UsersChangeOwnPasswordHandler = apiusers.ChangeOwnPasswordHandlerFunc(s.handleGeneratedChangeOwnPassword)
 	api.UsersChangeUserPasswordHandler = apiusers.ChangeUserPasswordHandlerFunc(s.handleGeneratedChangeUserPassword)
+	api.GroupsSyncGroupHandler = apigroups.SyncGroupHandlerFunc(s.handleGeneratedSyncGroup)
 
 	api.AddMiddlewareFor(http.MethodPost, "/login", internalmiddleware.RateLimitMiddleware(s.rateLimiter))
 
@@ -330,6 +334,70 @@ func changeOwnPasswordErrorResponder(err error) openapimiddleware.Responder {
 		return apiusers.NewChangeOwnPasswordUnauthorized().WithPayload(newAPIError(message))
 	}
 	return apiusers.NewChangeOwnPasswordInternalServerError().WithPayload(newAPIError(message))
+}
+
+func (s *Server) handleGeneratedSyncGroup(params apigroups.SyncGroupParams, principal any) openapimiddleware.Responder {
+	if _, ok := principalFromAny(principal); !ok {
+		return apigroups.NewSyncGroupUnauthorized().WithPayload(newAPIError("Unauthorized"))
+	}
+
+	if params.State == nil {
+		return apigroups.NewSyncGroupBadRequest().WithPayload(newAPIError("Invalid request body"))
+	}
+
+	result, err := s.syncGroup(params.HTTPRequest.Context(), stateArtifactFromAPI(params.State))
+	if err != nil {
+		return syncGroupErrorResponder(err)
+	}
+
+	return apigroups.NewSyncGroupOK().WithPayload(newAPIGroup(result))
+}
+
+func syncGroupErrorResponder(err error) openapimiddleware.Responder {
+	statusCode, message := operationStatus(err)
+	switch statusCode {
+	case http.StatusBadRequest:
+		return apigroups.NewSyncGroupBadRequest().WithPayload(newAPIError(message))
+	case http.StatusUnauthorized:
+		return apigroups.NewSyncGroupUnauthorized().WithPayload(newAPIError(message))
+	case http.StatusBadGateway:
+		return apigroups.NewSyncGroupBadGateway().WithPayload(newAPIError(message))
+	default:
+		return apigroups.NewSyncGroupInternalServerError().WithPayload(newAPIError(message))
+	}
+}
+
+func stateArtifactFromAPI(s *apimodels.StateArtifact) *models.StateArtifact {
+	artifacts := make([]models.Artifact, 0, len(s.Artifacts))
+	for _, a := range s.Artifacts {
+		if a == nil {
+			continue
+		}
+		artifacts = append(artifacts, models.Artifact{
+			Repository: a.Repository,
+			Tag:        a.Tag,
+			Labels:     a.Labels,
+			Type:       a.Type,
+			Digest:     a.Digest,
+			Deleted:    a.Deleted,
+		})
+	}
+	return &models.StateArtifact{
+		Group:     s.Group,
+		Registry:  s.Registry,
+		Artifacts: artifacts,
+	}
+}
+
+func newAPIGroup(g database.Group) *apimodels.Group {
+	return &apimodels.Group{
+		ID:          swag.Int32(g.ID),
+		GroupName:   swag.String(g.GroupName),
+		RegistryURL: swag.String(g.RegistryUrl),
+		Projects:    g.Projects,
+		CreatedAt:   dateTimePtr(g.CreatedAt),
+		UpdatedAt:   dateTimePtr(g.UpdatedAt),
+	}
 }
 
 func changeUserPasswordErrorResponder(err error) openapimiddleware.Responder {

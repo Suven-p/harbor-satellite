@@ -32,6 +32,66 @@ func init() {
   },
   "basePath": "/",
   "paths": {
+    "/api/groups/sync": {
+      "post": {
+        "description": "Creates the group described in the state artifact, updates the projects of all robot accounts attached to its satellites, ensures the \"satellite\" project exists in Harbor, and writes the state artifact. Requires an authenticated user. Bearer auth is recommended; Basic auth remains supported for automation.",
+        "tags": [
+          "groups"
+        ],
+        "summary": "Create or update a group from a state artifact",
+        "operationId": "syncGroup",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StateArtifact"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group created and state synced",
+            "schema": {
+              "$ref": "#/definitions/Group"
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "502": {
+            "description": "Upstream Harbor error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
     "/api/logout": {
       "post": {
         "description": "Requires a bearer token for session invalidation.",
@@ -478,6 +538,33 @@ func init() {
     }
   },
   "definitions": {
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "labels": {
+          "description": "Free-form label metadata; passed through unchanged.",
+          "type": "object"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
     "ChangeOwnPasswordRequest": {
       "type": "object",
       "required": [
@@ -534,6 +621,43 @@ func init() {
         }
       }
     },
+    "Group": {
+      "type": "object",
+      "required": [
+        "id",
+        "group_name",
+        "registry_url",
+        "projects",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "group_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "registry_url": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "HealthResponse": {
       "type": "object",
       "required": [
@@ -584,6 +708,23 @@ func init() {
     "PingResponse": {
       "type": "string",
       "example": "pong"
+    },
+    "StateArtifact": {
+      "type": "object",
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Artifact"
+          }
+        },
+        "group": {
+          "type": "string"
+        },
+        "registry": {
+          "type": "string"
+        }
+      }
     },
     "User": {
       "type": "object",
@@ -637,6 +778,9 @@ func init() {
     },
     {
       "name": "users"
+    },
+    {
+      "name": "groups"
     }
   ]
 }`))
@@ -658,6 +802,66 @@ func init() {
   },
   "basePath": "/",
   "paths": {
+    "/api/groups/sync": {
+      "post": {
+        "description": "Creates the group described in the state artifact, updates the projects of all robot accounts attached to its satellites, ensures the \"satellite\" project exists in Harbor, and writes the state artifact. Requires an authenticated user. Bearer auth is recommended; Basic auth remains supported for automation.",
+        "tags": [
+          "groups"
+        ],
+        "summary": "Create or update a group from a state artifact",
+        "operationId": "syncGroup",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StateArtifact"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group created and state synced",
+            "schema": {
+              "$ref": "#/definitions/Group"
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "502": {
+            "description": "Upstream Harbor error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
     "/api/logout": {
       "post": {
         "description": "Requires a bearer token for session invalidation.",
@@ -1104,6 +1308,33 @@ func init() {
     }
   },
   "definitions": {
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "labels": {
+          "description": "Free-form label metadata; passed through unchanged.",
+          "type": "object"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
     "ChangeOwnPasswordRequest": {
       "type": "object",
       "required": [
@@ -1160,6 +1391,43 @@ func init() {
         }
       }
     },
+    "Group": {
+      "type": "object",
+      "required": [
+        "id",
+        "group_name",
+        "registry_url",
+        "projects",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "group_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "registry_url": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "HealthResponse": {
       "type": "object",
       "required": [
@@ -1210,6 +1478,23 @@ func init() {
     "PingResponse": {
       "type": "string",
       "example": "pong"
+    },
+    "StateArtifact": {
+      "type": "object",
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Artifact"
+          }
+        },
+        "group": {
+          "type": "string"
+        },
+        "registry": {
+          "type": "string"
+        }
+      }
     },
     "User": {
       "type": "object",
@@ -1263,6 +1548,9 @@ func init() {
     },
     {
       "name": "users"
+    },
+    {
+      "name": "groups"
     }
   ]
 }`))
