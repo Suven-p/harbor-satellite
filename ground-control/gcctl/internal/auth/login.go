@@ -4,19 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client"
 	authclient "github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/client/auth"
 	"github.com/container-registry/harbor-satellite/ground-control/gcctl/apiclient/generated/models"
+	"github.com/container-registry/harbor-satellite/ground-control/gcctl/internal/apiclient"
 )
 
 // Result is what a successful login returns to the caller.
 type Result struct {
 	Token     string
-	ExpiresAt strfmt.DateTime
+	ExpiresAt time.Time
 }
 
 // Login authenticates against Ground Control at serverURL using the given
@@ -32,12 +32,10 @@ func Login(ctx context.Context, serverURL, username, password string) (*Result, 
 		return nil, errors.New("password is required")
 	}
 
-	cfg, err := transportConfig(serverURL)
+	gc, err := apiclient.New(serverURL)
 	if err != nil {
 		return nil, err
 	}
-
-	gc := client.NewHTTPClientWithConfig(strfmt.Default, cfg)
 
 	pw := strfmt.Password(password)
 	params := authclient.NewLoginParamsWithContext(ctx).WithCredentials(&models.LoginRequest{
@@ -55,28 +53,8 @@ func Login(ctx context.Context, serverURL, username, password string) (*Result, 
 
 	return &Result{
 		Token:     *ok.Payload.Token,
-		ExpiresAt: *ok.Payload.ExpiresAt,
+		ExpiresAt: time.Time(*ok.Payload.ExpiresAt),
 	}, nil
-}
-
-func transportConfig(serverURL string) (*client.TransportConfig, error) {
-	u, err := url.Parse(serverURL)
-	if err != nil {
-		return nil, fmt.Errorf("parse server URL: %w", err)
-	}
-	if u.Scheme == "" || u.Host == "" {
-		return nil, fmt.Errorf("server URL must include scheme and host, got %q", serverURL)
-	}
-
-	basePath := u.Path
-	if basePath == "" {
-		basePath = client.DefaultBasePath
-	}
-
-	return client.DefaultTransportConfig().
-		WithHost(u.Host).
-		WithBasePath(basePath).
-		WithSchemes([]string{u.Scheme}), nil
 }
 
 func translateLoginError(err error) error {
