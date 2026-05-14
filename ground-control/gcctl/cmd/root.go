@@ -25,9 +25,17 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("failed to determine default config path: %w", err)
 		}
+
 		appConfig = &config.Config{}
-		appConfigStore = config.NewFileStore(configPath)
-		return appConfigStore.Load(appConfig)
+		appConfigStore, err = config.NewFileStore(configPath)
+		if err != nil {
+			return fmt.Errorf("failed to create config store: %w", err)
+		}
+		err = appConfigStore.Load(appConfig)
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+		return nil
 	},
 }
 

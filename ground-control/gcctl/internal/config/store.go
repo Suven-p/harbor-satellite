@@ -21,8 +21,19 @@ type FileStore struct {
 }
 
 // NewFileStore returns a Store backed by the given file path.
-func NewFileStore(path string) *FileStore {
-	return &FileStore{path: path}
+func NewFileStore(path string) (*FileStore, error) {
+	// Create the file if it does not exist
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+			return nil, fmt.Errorf("create config dir: %w", err)
+		}
+		if f, err := os.Create(path); err != nil {
+			return nil, fmt.Errorf("create config file: %w", err)
+		} else {
+			f.Close()
+		}
+	}
+	return &FileStore{path: path}, nil
 }
 
 // Path returns the resolved file path.
