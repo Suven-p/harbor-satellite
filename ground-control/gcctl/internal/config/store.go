@@ -72,8 +72,5 @@ func (s *FileStore) Load(c *Config) error {
 	if err := yaml.Unmarshal(data, c); err != nil {
 		return fmt.Errorf("parse config: %w", err)
 	}
-	if c.Server == "" || c.Token == "" {
-		return fmt.Errorf("config at %s is missing server or token; run 'gcctl login'", s.path)
-	}
 	return nil
 }
