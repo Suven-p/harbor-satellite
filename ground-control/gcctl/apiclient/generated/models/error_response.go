@@ -18,7 +18,7 @@ type ErrorResponse struct {
 
 	// error
 	// Required: true
-	Error *string `json:"error"`
+	Error *string `json:"error" yaml:"error"`
 }
 
 // Validate validates this error response

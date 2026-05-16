@@ -18,13 +18,13 @@ import (
 type StateArtifact struct {
 
 	// artifacts
-	Artifacts []*Artifact `json:"artifacts"`
+	Artifacts []*Artifact `json:"artifacts" yaml:"artifacts"`
 
 	// group
-	Group string `json:"group,omitempty"`
+	Group string `json:"group,omitempty" yaml:"group,omitempty"`
 
 	// registry
-	Registry string `json:"registry,omitempty"`
+	Registry string `json:"registry,omitempty" yaml:"registry,omitempty"`
 }
 
 // Validate validates this state artifact

@@ -19,7 +19,7 @@ type ChangeUserPasswordRequest struct {
 	// new password
 	// Required: true
 	// Format: password
-	NewPassword *strfmt.Password `json:"new_password"`
+	NewPassword *strfmt.Password `json:"new_password" yaml:"new_password"`
 }
 
 // Validate validates this change user password request

@@ -19,12 +19,12 @@ type ChangeOwnPasswordRequest struct {
 	// current password
 	// Required: true
 	// Format: password
-	CurrentPassword *strfmt.Password `json:"current_password"`
+	CurrentPassword *strfmt.Password `json:"current_password" yaml:"current_password"`
 
 	// new password
 	// Required: true
 	// Format: password
-	NewPassword *strfmt.Password `json:"new_password"`
+	NewPassword *strfmt.Password `json:"new_password" yaml:"new_password"`
 }
 
 // Validate validates this change own password request

@@ -20,7 +20,7 @@ type HealthResponse struct {
 	// status
 	// Required: true
 	// Enum: ["healthy","unhealthy"]
-	Status *string `json:"status"`
+	Status *string `json:"status" yaml:"status"`
 }
 
 // Validate validates this health response

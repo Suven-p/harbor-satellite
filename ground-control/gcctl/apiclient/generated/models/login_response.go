@@ -19,11 +19,11 @@ type LoginResponse struct {
 	// expires at
 	// Required: true
 	// Format: date-time
-	ExpiresAt *strfmt.DateTime `json:"expires_at"`
+	ExpiresAt *strfmt.DateTime `json:"expires_at" yaml:"expires_at"`
 
 	// token
 	// Required: true
-	Token *string `json:"token"`
+	Token *string `json:"token" yaml:"token"`
 }
 
 // Validate validates this login response

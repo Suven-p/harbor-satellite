@@ -60,7 +60,7 @@ tasks:
       - "{{.API_GEN_CLIENT_DIR}}/client/groundcontrol_client.go"
     cmds:
       - mkdir -p "{{.API_GEN_CLIENT_DIR}}"
-      - swagger generate client -f "{{.API_SPEC}}" -A groundcontrol --target "{{.API_GEN_CLIENT_DIR}}"
+      - swagger generate client -f "{{.API_SPEC}}" -A groundcontrol --struct-tags=json --struct-tags=yaml --target "{{.API_GEN_CLIENT_DIR}}"
 
   gen-apis-check:
     desc: Verify generated Ground Control API files are up to date

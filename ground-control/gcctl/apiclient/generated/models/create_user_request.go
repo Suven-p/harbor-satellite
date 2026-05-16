@@ -19,11 +19,11 @@ type CreateUserRequest struct {
 	// password
 	// Required: true
 	// Format: password
-	Password *strfmt.Password `json:"password"`
+	Password *strfmt.Password `json:"password" yaml:"password"`
 
 	// username
 	// Required: true
-	Username *string `json:"username"`
+	Username *string `json:"username" yaml:"username"`
 }
 
 // Validate validates this create user request

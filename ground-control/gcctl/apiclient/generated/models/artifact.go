@@ -15,22 +15,22 @@ import (
 type Artifact struct {
 
 	// deleted
-	Deleted bool `json:"deleted,omitempty"`
+	Deleted bool `json:"deleted,omitempty" yaml:"deleted,omitempty"`
 
 	// digest
-	Digest string `json:"digest,omitempty"`
+	Digest string `json:"digest,omitempty" yaml:"digest,omitempty"`
 
 	// Free-form label metadata; passed through unchanged.
-	Labels any `json:"labels,omitempty"`
+	Labels any `json:"labels,omitempty" yaml:"labels,omitempty"`
 
 	// repository
-	Repository string `json:"repository,omitempty"`
+	Repository string `json:"repository,omitempty" yaml:"repository,omitempty"`
 
 	// tag
-	Tag []string `json:"tag"`
+	Tag []string `json:"tag" yaml:"tag"`
 
 	// type
-	Type string `json:"type,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
 // Validate validates this artifact

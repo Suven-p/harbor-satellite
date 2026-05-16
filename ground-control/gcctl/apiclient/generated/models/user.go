@@ -19,19 +19,19 @@ type User struct {
 	// created at
 	// Required: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"created_at" yaml:"created_at"`
 
 	// id
 	// Required: true
-	ID *int32 `json:"id"`
+	ID *int32 `json:"id" yaml:"id"`
 
 	// role
 	// Required: true
-	Role *string `json:"role"`
+	Role *string `json:"role" yaml:"role"`
 
 	// username
 	// Required: true
-	Username *string `json:"username"`
+	Username *string `json:"username" yaml:"username"`
 }
 
 // Validate validates this user

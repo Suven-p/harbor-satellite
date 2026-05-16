@@ -19,28 +19,28 @@ type Group struct {
 	// created at
 	// Required: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"created_at" yaml:"created_at"`
 
 	// group name
 	// Required: true
-	GroupName *string `json:"group_name"`
+	GroupName *string `json:"group_name" yaml:"group_name"`
 
 	// id
 	// Required: true
-	ID *int32 `json:"id"`
+	ID *int32 `json:"id" yaml:"id"`
 
 	// projects
 	// Required: true
-	Projects []string `json:"projects"`
+	Projects []string `json:"projects" yaml:"projects"`
 
 	// registry url
 	// Required: true
-	RegistryURL *string `json:"registry_url"`
+	RegistryURL *string `json:"registry_url" yaml:"registry_url"`
 
 	// updated at
 	// Required: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt *strfmt.DateTime `json:"updated_at" yaml:"updated_at"`
 }
 
 // Validate validates this group
