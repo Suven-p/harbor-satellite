@@ -8,4 +8,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: operator
 repo: github.com/container-registry/harbor-satellite/operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: container-registry.com
+  group: satellite
+  kind: Satellite
+  path: github.com/container-registry/harbor-satellite/operator/api/v1alpha1
+  version: v1alpha1
 version: "3"
